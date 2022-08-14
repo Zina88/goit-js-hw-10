@@ -1,5 +1,9 @@
 import { Notify } from 'notiflix';
 
+Notify.init({
+  width: '70%',
+});
+
 const BASE_URL = 'https://restcountries.com/v3.1/name/';
 const FILTER = '?fields=name,capital,flags,languages,population';
 

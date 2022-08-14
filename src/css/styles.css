@@ -31,9 +31,12 @@ body {
 .country-list{
   margin: 0;
   padding: 0;
+
+
 }
 
-.country-list__item{
+.country-list__item{  
+  width: 350px;
   display: flex;
   justify-content: start;
   align-items: center;
@@ -50,11 +53,9 @@ body {
   font-size: 16px;
   font-weight: 500;
 }
-
-
 .card-body{
   margin: 0;
-  width: 400px;
+  width: 350px;
   padding: 15px;
   box-shadow: 0px 0px 10px rgba(111, 111, 111, 0.25);
 }
