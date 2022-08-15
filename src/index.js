@@ -1,9 +1,14 @@
 import './css/styles.css';
-import CounriesAPIService from './js/fetchCountries';
+import fetchCountries from './js/fetchCountries';
 import debounce from 'lodash.debounce';
+import { Notify } from 'notiflix';
+
+Notify.init({
+  width: '50%',
+});
 
 const DEBOUNCE_DELAY = 300;
-const counriesAPIService = new CounriesAPIService();
+
 const refs = {
   searchForm: document.querySelector('input#search-box'),
   countryList: document.querySelector('.country-list'),
@@ -16,36 +21,35 @@ refs.searchForm.addEventListener(
 );
 
 function onSearchCountry(e) {
-  // e.preventDefault();
-  clearCountryInfo();
-  clearCountryList();
-  counriesAPIService.query = e.target.value.trim();
+  const inputValue = e.target.value.trim();
+  refs.countryList.innerHTML = '';
+  refs.countryInfo.innerHTML = '';
 
-  if (counriesAPIService.query !== '') {
-    counriesAPIService.fetchCountries().then(data => {
-      createMarkup(data);
-    });
+  if (inputValue !== '') {
+    fetchCountries(inputValue)
+      .then(data => {
+        createMarkup(data);
+      })
+      .catch(error => {
+        if (error.message === '404') {
+          Notify.failure('Oops, there is no country with that name');
+          return;
+        }
+        Notify.failure('Something wrong...');
+      });
   }
 }
 
 function createMarkup(data) {
-  clearCountryInfo();
-  clearCountryList();
-  if (data.length >= 2 && data.length < 10) {
+  if (data.length >= 2 && data.length <= 10) {
     createList(data);
     return;
-  }
-  if (data.length === 1) {
+  } else if (data.length === 1) {
     createCard(data);
     return;
+  } else if (data.length > 10) {
+    Notify.info('Too many matches found. Please enter a more specific name.');
   }
-}
-
-function clearCountryList() {
-  refs.countryList.innerHTML = '';
-}
-function clearCountryInfo() {
-  refs.countryInfo.innerHTML = '';
 }
 
 function createList(data) {
@@ -63,26 +67,23 @@ function createList(data) {
   refs.countryList.insertAdjacentHTML('beforeend', markup);
 }
 
-function createCard(data) {
-  const markup = data
-    .map(item => {
-      return `
+const createCard = country => {
+  const { flags, name, capital, languages, population } = country[0];
+  const markup = `
       <div class="card-body">
 
         <div class="card-name">
-            <img class="card-info__img" src="${item.flags.svg}" 
-            alt="${item.name.official}">
-          <h2 class="card-info__title">${item.name.official}</h2>
+            <img class="card-info__img" src="${flags.svg}" 
+            alt="${name.official}">
+          <h2 class="card-info__title">${name.official}</h2>
         </div>
 
-          <p class="card-info__capital">Capital: ${item.capital}</p>
-          <p class="card-info__population">Population: ${item.population}</p>
+          <p class="card-info__capital">Capital: ${capital}</p>
+          <p class="card-info__population">Population: ${population}</p>
           <p class="card-info__languages">Languages: ${Object.values(
-            item.languages
+            languages
           )}</p>
       </div>
       `;
-    })
-    .join('');
-  refs.countryInfo.insertAdjacentHTML('beforeend', markup);
-}
+  refs.countryInfo.innerHTML = markup;
+};
