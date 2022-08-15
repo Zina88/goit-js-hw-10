@@ -67,7 +67,7 @@ function createList(data) {
   refs.countryList.insertAdjacentHTML('beforeend', markup);
 }
 
-const createCard = country => {
+function createCard(country) {
   const { flags, name, capital, languages, population } = country[0];
   const markup = `
       <div class="card-body">
@@ -86,4 +86,4 @@ const createCard = country => {
       </div>
       `;
   refs.countryInfo.innerHTML = markup;
-};
+}
